@@ -170,8 +170,8 @@ def evaluate(model: str, coll:str, F_beta: float):
     X = list(collection.queries_dict)
     plot(X, precision_l, np.average(precision_l), model + '_' + coll + '_precision', 1, Ylabel='precision')
     plot(X, recall_l,    np.average(recall_l),    model + '_' + coll + '_recall', 2, Ylabel='recall')
-    plot(X, F_l,         np.average(F_l),         model + '_' + coll + '_F', 3, Ylabel='F-metric')
-    plot(X, F1_l,        np.average(F1_l),        model + '_' + coll + '_F1', 4, Ylabel='F1-metric')
+    plot(X, f_l,         np.average(f_l),         model + '_' + coll + '_F', 3, Ylabel='f-metric')
+    plot(X, f1_l,        np.average(f1_l),        model + '_' + coll + '_F1', 4, Ylabel='f1-metric')
     plot(X, fallout_l,   np.average(fallout_l),   model + '_' + coll + '_fallout', 5, Ylabel='fallout')
     plot(X,precision_r_l,np.average(precision_r_l),model + '_' + coll + '_precision_r', 6, Ylabel='R-precision')
     
