@@ -95,7 +95,7 @@ def recall(qrels: list, retrieved: list):
     """
     if len(qrels) == 0: return 0
     return hits(qrels, retrieved) / len(qrels)
-def F_metric(qrels: list, retrieved: list, beta = 1):
+def f_metric(qrels: list, retrieved: list, beta = 1):
     """ Weighted harmonic mean of Precision and Recall. 
         qrels:       list of relevant documents
         retrieved:   list of retrieved documents
@@ -153,8 +153,8 @@ def evaluate(model: str, coll:str, F_beta: float):
 
     precision_l = []
     recall_l = []
-    F_l = []
-    F1_l = []
+    f_l = []
+    f1_l = []
     precision_r_l = []
     fallout_l = []
     for q in model_relevance[(model, coll)]:
@@ -162,8 +162,8 @@ def evaluate(model: str, coll:str, F_beta: float):
         qrels = collection.queries_dict[q].docs_relevance
         precision_l.append(round(precision(qrels, retrieved), 4))
         recall_l.append(round(recall(qrels, retrieved), 4))
-        F_l.append(round(F_metric(qrels, retrieved, F_beta), 4))
-        F1_l.append(round(F_metric(qrels, retrieved, 1), 4))
+        f_l.append(round(f_metric(qrels, retrieved, F_beta), 4))
+        f1_l.append(round(f_metric(qrels, retrieved, 1), 4))
         precision_r_l.append(round(precision_ranked(qrels, retrieved), 4))
         fallout_l.append(round(fallout(qrels, retrieved, collection.numb_docs), 4))
     
