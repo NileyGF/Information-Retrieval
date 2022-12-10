@@ -27,27 +27,28 @@ def qrel_by_model(model, collection):
     return model_rel
 
 # ret = {}
-m = ['vector', 'boolean', 'LSI']
-c = ['cranfield', 'vaswani', 'vaswani_r', 'nfcorpus', 'nfcorpus_r']
+# m = ['vector', 'boolean', 'LSI']
+# c = ['cranfield', 'vaswani', 'vaswani_r', 'nfcorpus', 'nfcorpus_r']
+# rel_path = os.path.join(os.path.dirname(__file__),'data')
 # qrel_by_model(m[1],c[0])
 # ret[(m[0],c[0])] = qrel_by_model(m[0],c[0])     # vector - cranfield 
 # ret[(m[0],c[1])] = qrel_by_model(m[0],c[1])     # vector - vaswani
 # ret[(m[0],c[3])] = qrel_by_model(m[0],c[3])     # vector - nfcorpus
-# f = open('relevance_vector.bin','wb')
+# f = open( os.path.join(rel_path, 'relevance_vector.bin','wb') )
 # pickle.dump(ret,f)
 # f.close()
 # ret = {}
 # ret[(m[1],c[0])] = qrel_by_model(m[1],c[0])     # boolean - cranfield
 # ret[(m[1],c[1])] = qrel_by_model(m[1],c[1])     # boolean - vaswani
 # ret[(m[1],c[3])] = qrel_by_model(m[1],c[3])     # boolean - nfcorpus
-# f = open('relevance_boolean.bin','wb')
+# f = open( os.path.join(rel_path, 'relevance_boolean.bin','wb') )
 # pickle.dump(ret,f)
 # f.close()
 # ret = {}
 # ret[(m[2],c[0])] = qrel_by_model(m[2],c[0])     # LSI - cranfield
 # ret[(m[2],c[2])] = qrel_by_model(m[2],c[2])     # LSI - vaswani_r
 # ret[(m[2],c[4])] = qrel_by_model(m[2],c[4])     # LSI - nfcorpus_r
-# f = open('relevance_LSI.bin','wb')
+# f = open( os.path.join(rel_path, 'relevance_LSI.bin','wb') )
 # pickle.dump(ret,f)
 # f.close()
 
@@ -88,7 +89,6 @@ def recall(qrels: list, retrieved: list):
     """ Ratio between the retrieved documents that are relevant and the total number of relevant documents. 
         qrels:       list of relevant documents
         retrieved:   list of retrieved documents
-
         Recall = r/R
         r: number of retrieved relevant documents
         R: total number of relevant documents
@@ -99,7 +99,6 @@ def f_metric(qrels: list, retrieved: list, beta = 1):
     """ Weighted harmonic mean of Precision and Recall. 
         qrels:       list of relevant documents
         retrieved:   list of retrieved documents
-
         F = ((1+beta^2) * P * R ) / ( beta^2 * P + R )
         beta: weight
         P: precision
@@ -114,11 +113,9 @@ def precision_ranked(qrels: list, retrieved: list):
     """ Proportion of the retrieved documents that are relevant. 
         qrels:       list of relevant documents
         retrieved:   list of retrieved documents
-
         R-Precision = r/R
         r: number of relevant documents among the top-R retrieved
         R: total number of relevant documents
-
         R-Precision is equal to recall at the R-th position
     """
     R = min(len(qrels), len(retrieved))
