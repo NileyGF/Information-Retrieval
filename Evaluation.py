@@ -138,9 +138,10 @@ def fallout(qrels: list, retrieved: list, total_docs: int):
     return non_hits / non_rel_docs
 
 def evaluate(model: str, coll:str, F_beta: float):
-    if model == 'vector':       path = 'relevance_vector.bin'
-    elif model == 'boolean':    path = 'relevance_boolean.bin'
-    elif model == 'LSI':        path = 'relevance_LSI.bin'
+    path = os.path.join(os.path.dirname(__file__),'data')
+    if model == 'vector':       path = os.path.join(path, 'relevance_vector.bin')
+    elif model == 'boolean':    path = os.path.join(path, 'relevance_boolean.bin')
+    elif model == 'LSI':        path = os.path.join(path, 'relevance_LSI.bin')
     else:
         print("Wrong Model")
         return
