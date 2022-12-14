@@ -24,22 +24,13 @@ class LSI_model():
             self.collection.process_docs()
             self.collection.load_files()
 
-        # Print the time it took to read the collection data
-        print("First load time:", round(time.time() - self.start_time, 2), "seconds")
-        # cranfield    0.89 sec
-        # vaswani_r    2.06 sec
-        # nfcorpus_r   4.89 sec
         try:
             self.load_tf_idf(self.collection.save_path)
         except:
             self.idf_list = self.idf()
             self.tfXidf_2darray = self.Joint_tf_idf() 
             np.save(os.path.join(self.collection.save_path, 'idf_list'), self.idf_list)
-        # Print the time it took to get tf, idf and tf x idf
-        print("tf idf load time:", round(time.time() - self.start_time, 2), "seconds")
-        # except: cranfield     1.43 sec
-        # except: vaswani_r     4.54 sec
-        # except: nfcorpus_r    8.09 sec
+
         try:
             self.load_TSD(self.collection.save_path)
         except:
@@ -48,11 +39,6 @@ class LSI_model():
             np.save(os.path.join(self.collection.save_path, 'LSI_Tk'), self.Tk)
             np.save(os.path.join(self.collection.save_path, 'LSI_Sk'), self.Sk)
             np.save(os.path.join(self.collection.save_path, 'LSI_DTk'), self.DTk)
-        # Print the time it took to get T, S and DT
-        print("T S D load time:", round(time.time() - self.start_time, 2), "seconds")
-        # except: cranfield   33.17 sec
-        # except: vaswani    953.38 sec
-        # except: nfcorpus   539.79 sec
 
     def load_tf_idf(self,path):
         idf_f = open(os.path.join(path, 'idf_list.npy'), 'r')
@@ -135,7 +121,6 @@ class LSI_model():
         """
         Query the indexed documents using a Latent Semantic Indexing model
         """
-        start_time = time.time()
         # Tokenize query
         query_tokens = self.tokenize_query(query)
         # Convert the query to the vector space
@@ -153,11 +138,7 @@ class LSI_model():
 
         index_list = list(ranked_docs.keys())[0:ranking]
         docs_to_print = self.collection.docs_ranking(ranking, index_list)
-        # Print the time it took to gather the tokens for the collection
-        print("Query tokenization time:", round(time.time() - start_time, 2), "seconds")
-        # cranfield     0.76 sec 
-        # vaswani_r     9.68 sec    
-        # nfcorpus_r    7.61 sec
+
         return docs_to_print
 
     def tokenize_query(self, query):

@@ -15,7 +15,7 @@ class Boolean_model():
     lemmatizer = WordNetLemmatizer()                    # nltk lemmatizer
     lemmatizer.lemmatize('', pos ='v')                  # initialize the lemmatizer (because of the lazy load)
     
-    def __init__(self, collection= 'cranfield'):
+    def __init__(self, collection):
         self.start_time = time.time() 
         self.collection = st.datasets[collection]
 
@@ -24,18 +24,12 @@ class Boolean_model():
             self.collection.process_docs()
             self.collection.load_files()
 
-        # Print the time it took to read the collection data
-        print("First load time:", round(time.time() - self.start_time, 2), "seconds")
-        # cranfield    0.91 sec
-        # vaswani      2.41 sec
-        # nfcorpus     6.72 sec
 
     def query(self, query_text, ranking=30):
         """
         Query the indexed documents using a boolean model
         """
-        start_time = time.time()
-
+        
         # Tokenize query
         query_tokens = self.tokenize_query(query_text)
         if len(query_tokens) == 0:
@@ -59,11 +53,7 @@ class Boolean_model():
         
         index_list = list(ranked_docs.keys())[0:ranking]
         docs_to_print = self.collection.docs_ranking(ranking, index_list)
-        # Print the time it took to gather the tokens for the collection
-        print("Query tokenization time:", round(time.time() - start_time, 2), "seconds")
-        # cranfield    0.04 sec
-        # vaswani      0.35 sec
-        # nfcorpus     0.11 sec
+
         return docs_to_print
 
     def tokenize_query(self, query):
@@ -131,7 +121,6 @@ class Boolean_model():
         for i in tf_dict:
             tf_dict[i] = tf_dict[i] / max_freq
         return tf_dict
-
 
     def parse_query(self, query_tokens):
         vector = []
@@ -214,7 +203,7 @@ class Boolean_model():
         Evaluates the query against the corpus
         """
         doc_likehood = {d.id:0 for d in self.collection.documents_list}
-        for t in query_tokens:            # intersection of relevant documents per term
+        for t in query_tokens:            
             term_value = query_tf.get(t)
             if not term_value: term_value = 0
             ds = self.collection.terms_dict.get(t)
