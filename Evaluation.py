@@ -174,16 +174,18 @@ def evaluate(model: str, coll:str, F_beta: float):
     
 def plot(X:list, Y:list, avg: float, name:str, fig: int, Xlabel = 'queries', Ylabel=''):
     path = os.path.join(os.path.dirname(__file__), 'evaluation')
-    path = os.path.join(path, name)
+    path = os.path.join(path, name+'.png')
     n = name.split('_')
     plt.figure(fig)
-    plt.scatter(X, Y )
+    plt.scatter(X, Y)
     plt.xlabel(Xlabel)
     if Ylabel == '': Ylabel = n[2]
     plt.ylabel(Ylabel)
     plt.title(n[0]+' - '+n[1]+'  Average '+Ylabel+': '+str(round(avg,4)))
+    plt.ylim(-0.05,1.05)
     plt.savefig(path, format='png')
     # plt.show()
+
 
 
 # evaluate('vector', 'cranfield', 5)
@@ -197,6 +199,8 @@ def plot(X:list, Y:list, avg: float, name:str, fig: int, Xlabel = 'queries', Yla
 # evaluate('boolean', 'nfcorpus', 5)
 
 # cran = st.Cranfield()     
+# cran.load_queries()
+# print(cran.queries_dict)
 # cran.process_docs()
 # print(cran.freq_matrix.shape, cran.freq_matrix.size)      # (5510, 1400) 7,714,000
 # vsw = st.Vaswani()

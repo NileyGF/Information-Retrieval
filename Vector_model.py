@@ -14,7 +14,7 @@ class Vector_model():
     lemmatizer = WordNetLemmatizer()                    # nltk lemmatizer
     lemmatizer.lemmatize('', pos ='v')                  # initialize the lemmatizer (because of the lazy load)
     
-    def __init__(self, collection= 'cranfield'):
+    def __init__(self, collection):
         self.start_time = time.time() 
         self.collection = st.datasets[collection]
 
@@ -23,24 +23,12 @@ class Vector_model():
             self.collection.process_docs()
             self.collection.load_files()
 
-        # Print the time it took to read the collection data
-        print("First load time:", round(time.time() - self.start_time, 2), "seconds")
-        # cranfield    0.88 sec
-        # vaswani      2.45 sec
-        # nfcorpus     6.45 sec
-
         try:
             self.load_tf_idf(self.collection.save_path)
         except:
             self.idf_list = self.idf()
             self.tfXidf_2darray = self.Joint_tf_idf() 
             np.save(os.path.join(self.collection.save_path, 'idf_list'), self.idf_list)
-
-        # Print the time it took to get tf, idf and tf x idf
-        print("tf idf load time:", round(time.time() - self.start_time, 2), "seconds")
-        # except: cranfield    1.34 sec
-        # except: vaswani      5.48 sec
-        # except: nfcorpus    10.43 sec
 
     def load_tf_idf(self, path):
         idf_f = open(os.path.join(path, 'idf_list.npy'), 'r')
@@ -89,7 +77,6 @@ class Vector_model():
         query: valid expression to search for
         returns: top-ranking relevant documents
         """
-        start_time = time.time()
 
         # Tokenize query
         query_tokens = self.tokenize_query(query_text)
@@ -108,11 +95,7 @@ class Vector_model():
 
         index_list = list(ranked_docs.keys())[0:ranking]
         docs_to_print = self.collection.docs_ranking(ranking, index_list)
-        # Print the time it took to gather the tokens for the collection
-        print("Query tokenization time:", round(time.time() - start_time, 2), "seconds")
-        # cranfield    0.55   sec 
-        # vaswani      20.21  sec
-        # nfcorpus     10.56  sec
+        
         return docs_to_print
 
     def tokenize_query(self, query):
@@ -159,7 +142,7 @@ class Vector_model():
     def evaluate_query(self, query_weight_vector):
         """
         Evaluates the query against the corpus
-        :param query_tokens: list of query tokens        :param query_tokens: list of query tokens
+        :param query_tokens: list of query tokens
 
         :returns: list of matching documents
         """

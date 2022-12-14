@@ -39,8 +39,6 @@ class Std_tokenizer:
         Returns a list of Document, now with the indexed terms 
          for every document; and a list with all the indexed terms.
         """
-        start_time = time.time()
-
         # list of all indexed terms
         indexed_terms = []
 
@@ -54,13 +52,6 @@ class Std_tokenizer:
         unique_words = list(set(indexed_terms))  # remove repeated terms by using set()
         unique_words.sort()                      # sort to have a unique order when indexing
 
-        # Print the time it took to gather the tokens for the collection
-        print("Tokenization time:", round(time.time() - start_time, 2), "seconds")
-        # cranfield    29.54 sec
-        # vaswani      52.52 sec
-        # nfcorpus     79.12 sec
-        # vaswani_r    44.92 sec
-        # nfcorpus_r   63.9  sec
         return docs_list, unique_words
     
     def tokenize_nltk(doc_text):
@@ -85,7 +76,7 @@ class Std_tokenizer:
         
         return docs_by_term_dict, term_doc_matrix
 
-    def dictionary_strctr(terms, docs_list, start_time):
+    def dictionary_strctr(terms, docs_list):
         # a dictionary term:list . For every term in the collection, the documents it's in
         docs_by_term_dict = {t: [] for t in terms}
 
@@ -95,13 +86,6 @@ class Std_tokenizer:
             for t in no_repeat:
                 docs_by_term_dict[t].append(docs_list[i].id)
 
-        # Print the time it took to structure the data
-        print("Dictionary time:", round(time.time() - start_time, 2), "seconds")
-        # cranfield    0.16 sec
-        # vaswani      0.42 sec
-        # nfcorpus     0.81 sec
-        # vaswani_r    0.32 sec
-        # nfcorpus_r   0.59 sec
         return docs_by_term_dict
 
     def freq_m_strctr(terms, docs_list, docs_by_term_dict, start_time):
@@ -114,14 +98,7 @@ class Std_tokenizer:
                 d_ind = docs_by_term_dict[terms[i]] [k]  - 1   # minus 1, because the document's id is 1-indexed
                 freq = docs_list[d_ind].terms_list.count(terms[i])
                 term_doc_matrix[i,d_ind] = freq
-
-        # Print the time it took to structure the data
-        print("Data structuring time:", round(time.time() - start_time, 2), "seconds")
-        # cranfield    1.41 sec
-        # vaswani      4.81 sec
-        # nfcorpus    10.97 sec
-        # vaswani_r    2.76 sec
-        # nfcorpus_r   7.26 sec
+ 
         return term_doc_matrix
 
     def pickle_dump(path, docs_list, docs_by_term_dict, terms, term_doc_matrix):
@@ -214,15 +191,21 @@ class Cranfield(Collection):
         # a dictionary of Query
         self.queries_dict = {}
         # load queries
+        q_ind_q_id_dict = {}
+        i = 1
         for query in self._generator.queries_iter():
             self.queries_dict[int(query.query_id)] = Query(int(query.query_id), query.text)
+            q_ind_q_id_dict[i] = int(query.query_id)
+            i+=1
         self.loaded_queries = True
         # load queries relevances
         for qrel in self._generator.qrels_iter():
-            if int(qrel.doc_id) <= self.numb_docs and qrel.relevance > 0:
-                q = self.queries_dict.get(int(qrel.query_id))
-                if q: #if the qrel.query_id is in self.queries_dict
+            if int(qrel.doc_id) <= self.numb_docs:
+                q = self.queries_dict.get(q_ind_q_id_dict[int(qrel.query_id)])
+                if q:
                     q.docs_relevance.append(int(qrel.doc_id))
+                else: print('Noooo')
+
         self.loaded_rel = True
 
     def process_docs(self):
@@ -269,7 +252,7 @@ class Vaswani(Collection):
         self.loaded_queries = True
         # load queries relevances
         for qrel in self._generator.qrels_iter():
-            if int(qrel.doc_id) <= self.numb_docs and qrel.relevance > 0:
+            if int(qrel.doc_id) <= self.numb_docs:
                 q = self.queries_dict.get(int(qrel.query_id))
                 if q: # if the qrel.query_id is in self.queries_dict
                     q.docs_relevance.append(int(qrel.doc_id))
@@ -326,7 +309,7 @@ class Nfcorpus(Collection):
         self.loaded_queries = True
         # load queries relevances
         for qrel in self._generator.qrels_iter():
-            if int(qrel.doc_id[4:]) <= self.numb_docs and qrel.relevance > 0:
+            if int(qrel.doc_id[4:]) <= self.numb_docs:
                 q = self.queries_dict.get(int(qrel.query_id[6:]))
                 if q: # if the qrel.query_id is in self.queries_dict
                     q.docs_relevance.append(int(qrel.doc_id[4:]))
@@ -377,3 +360,4 @@ datasets = {
     'nfcorpus'    : Nfcorpus(),
     'nfcorpus_r'  : Nfcorpus(reduce=True)
 }
+
