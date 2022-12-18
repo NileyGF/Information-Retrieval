@@ -4,7 +4,7 @@ import string
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
-import structures as st
+import psri.structures as st
 
 class Boolean_model():
     """ Boolean model for unranked information retrieval """
@@ -15,7 +15,7 @@ class Boolean_model():
     lemmatizer = WordNetLemmatizer()                    # nltk lemmatizer
     lemmatizer.lemmatize('', pos ='v')                  # initialize the lemmatizer (because of the lazy load)
     
-    def __init__(self, collection):
+    def __init__(self, collection= 'cranfield'):
         self.start_time = time.time() 
         self.collection = st.datasets[collection]
 
@@ -29,7 +29,8 @@ class Boolean_model():
         """
         Query the indexed documents using a boolean model
         """
-        
+        start_time = time.time()
+
         # Tokenize query
         query_tokens = self.tokenize_query(query_text)
         if len(query_tokens) == 0:
@@ -122,6 +123,7 @@ class Boolean_model():
             tf_dict[i] = tf_dict[i] / max_freq
         return tf_dict
 
+
     def parse_query(self, query_tokens):
         vector = []
         cc = []
@@ -130,21 +132,15 @@ class Boolean_model():
         i=0
         while i < len(query_tokens) and i>=0:
             if i == 0:
-                if query_tokens[i] == '&&' or query_tokens[i] == '||'  or query_tokens[i] == '!!' :
+                if query_tokens[i] == '&&' or query_tokens[i] == '||' :
                     print('wrong query')
                     return
-                cc.append(st.Bool_node(query_tokens[i]))
-                if (i == len(query_tokens) - 1):
-                    vector.append(cc)
-                    cc =[]
-                i+=1
-            elif (i == len(query_tokens) - 1):
+            if (i == len(query_tokens) - 1):
                 if query_tokens[i] == '&&' or query_tokens[i] == '||'  or query_tokens[i] == '!!' :
                     print('wrong query')
                     return
                 cc.append(st.Bool_node(query_tokens[i]))
                 vector.append(cc)
-                cc = []
                 i+=1
             else:
                 if query_tokens[i] == '||':
@@ -159,6 +155,8 @@ class Boolean_model():
                         return
                     cc.append(st.Bool_Not_node(query_tokens[i+1]))
                     i+=1
+                    if (i == len(query_tokens) - 1):
+                        vector.append(cc)
                 elif query_tokens[i] == '&&':
                     if query_tokens[i+1] == '&&' or query_tokens[i+1] == '||':
                         print('wrong query')
@@ -168,7 +166,7 @@ class Boolean_model():
                 i+=1
         return vector
 
-    def evaluate_bool_query(self, query_cc_list, query_tf):
+    def evaluate_bool_query(self, query_cc_list):
         """
         Evaluates the query against the corpus
         """
@@ -203,7 +201,7 @@ class Boolean_model():
         Evaluates the query against the corpus
         """
         doc_likehood = {d.id:0 for d in self.collection.documents_list}
-        for t in query_tokens:            
+        for t in query_tokens:            # intersection of relevant documents per term
             term_value = query_tf.get(t)
             if not term_value: term_value = 0
             ds = self.collection.terms_dict.get(t)
@@ -213,3 +211,4 @@ class Boolean_model():
         
         ranked_doc = dict(sorted(doc_likehood.items(), key=lambda item: item[1], reverse=True))
         return ranked_doc
+    

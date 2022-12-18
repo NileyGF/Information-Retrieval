@@ -5,7 +5,7 @@ import string
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
-import structures as st
+import psri.structures as st
 
 class Vector_model():
     """ Vector space model for ranked information retrieval """
@@ -14,7 +14,7 @@ class Vector_model():
     lemmatizer = WordNetLemmatizer()                    # nltk lemmatizer
     lemmatizer.lemmatize('', pos ='v')                  # initialize the lemmatizer (because of the lazy load)
     
-    def __init__(self, collection):
+    def __init__(self, collection= 'cranfield'):
         self.start_time = time.time() 
         self.collection = st.datasets[collection]
 
@@ -29,6 +29,7 @@ class Vector_model():
             self.idf_list = self.idf()
             self.tfXidf_2darray = self.Joint_tf_idf() 
             np.save(os.path.join(self.collection.save_path, 'idf_list'), self.idf_list)
+
 
     def load_tf_idf(self, path):
         idf_f = open(os.path.join(path, 'idf_list.npy'), 'r')
@@ -77,6 +78,7 @@ class Vector_model():
         query: valid expression to search for
         returns: top-ranking relevant documents
         """
+        start_time = time.time()
 
         # Tokenize query
         query_tokens = self.tokenize_query(query_text)
@@ -95,7 +97,7 @@ class Vector_model():
 
         index_list = list(ranked_docs.keys())[0:ranking]
         docs_to_print = self.collection.docs_ranking(ranking, index_list)
-        
+
         return docs_to_print
 
     def tokenize_query(self, query):
@@ -142,7 +144,7 @@ class Vector_model():
     def evaluate_query(self, query_weight_vector):
         """
         Evaluates the query against the corpus
-        :param query_tokens: list of query tokens
+        :param query_tokens: list of query tokens        :param query_tokens: list of query tokens
 
         :returns: list of matching documents
         """

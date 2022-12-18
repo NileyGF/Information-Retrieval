@@ -5,7 +5,7 @@ import string
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
-import structures as st
+import psri.structures as st
 
 
 class LSI_model():
@@ -121,6 +121,7 @@ class LSI_model():
         """
         Query the indexed documents using a Latent Semantic Indexing model
         """
+        start_time = time.time()
         # Tokenize query
         query_tokens = self.tokenize_query(query)
         # Convert the query to the vector space
