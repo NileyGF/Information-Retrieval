@@ -39,6 +39,8 @@ class Std_tokenizer:
         Returns a list of Document, now with the indexed terms 
          for every document; and a list with all the indexed terms.
         """
+        start_time = time.time()
+
         # list of all indexed terms
         indexed_terms = []
 
@@ -76,7 +78,7 @@ class Std_tokenizer:
         
         return docs_by_term_dict, term_doc_matrix
 
-    def dictionary_strctr(terms, docs_list):
+    def dictionary_strctr(terms, docs_list, start_time):
         # a dictionary term:list . For every term in the collection, the documents it's in
         docs_by_term_dict = {t: [] for t in terms}
 
@@ -98,7 +100,7 @@ class Std_tokenizer:
                 d_ind = docs_by_term_dict[terms[i]] [k]  - 1   # minus 1, because the document's id is 1-indexed
                 freq = docs_list[d_ind].terms_list.count(terms[i])
                 term_doc_matrix[i,d_ind] = freq
- 
+
         return term_doc_matrix
 
     def pickle_dump(path, docs_list, docs_by_term_dict, terms, term_doc_matrix):
@@ -155,7 +157,7 @@ class Collection:
     def docs_ranking(self, ranking, docs_id_list):
         # create a list with the information of the top ranking documents in docs_id_list
         result = []   #tuple list 
-        if not self.loaded_docs:
+        if not self.loaded_docs and not self.loaded_metadata:
             self.load_docs()
         docs_id_list = docs_id_list[:ranking]
         for id in docs_id_list:
@@ -191,21 +193,15 @@ class Cranfield(Collection):
         # a dictionary of Query
         self.queries_dict = {}
         # load queries
-        q_ind_q_id_dict = {}
-        i = 1
         for query in self._generator.queries_iter():
             self.queries_dict[int(query.query_id)] = Query(int(query.query_id), query.text)
-            q_ind_q_id_dict[i] = int(query.query_id)
-            i+=1
         self.loaded_queries = True
         # load queries relevances
         for qrel in self._generator.qrels_iter():
             if int(qrel.doc_id) <= self.numb_docs:
-                q = self.queries_dict.get(q_ind_q_id_dict[int(qrel.query_id)])
-                if q:
+                q = self.queries_dict.get(int(qrel.query_id))
+                if q: #if the qrel.query_id is in self.queries_dict
                     q.docs_relevance.append(int(qrel.doc_id))
-                else: print('Noooo')
-
         self.loaded_rel = True
 
     def process_docs(self):
@@ -360,4 +356,3 @@ datasets = {
     'nfcorpus'    : Nfcorpus(),
     'nfcorpus_r'  : Nfcorpus(reduce=True)
 }
-
